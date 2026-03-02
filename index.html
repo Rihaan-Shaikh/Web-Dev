@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Harvard Resume → LaTeX Builder</title>
+
+<style>
+
+/* FONT */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+/* RESET */
+*
+{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
+
+/* BODY */
+body
+{
+font-family:Inter, system-ui;
+background:linear-gradient(135deg,#0f172a,#020617);
+color:#e2e8f0;
+height:100vh;
+display:flex;
+flex-direction:column;
+}
+
+/* HEADER */
+header
+{
+padding:20px;
+text-align:center;
+font-size:24px;
+font-weight:700;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(10px);
+border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+/* MAIN */
+.main
+{
+flex:1;
+display:flex;
+padding:20px;
+gap:20px;
+}
+
+/* PANELS */
+.left,.right
+{
+flex:1;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(15px);
+border-radius:12px;
+padding:20px;
+overflow:auto;
+box-shadow:0 0 20px rgba(0,0,0,0.3);
+}
+
+/* TITLES */
+h3
+{
+margin-bottom:10px;
+color:#60a5fa;
+}
+
+/* INPUTS */
+input,textarea
+{
+width:100%;
+padding:12px;
+margin-bottom:12px;
+background:rgba(0,0,0,0.4);
+border:1px solid rgba(255,255,255,0.1);
+border-radius:8px;
+color:white;
+outline:none;
+transition:0.3s;
+}
+
+input:focus,textarea:focus
+{
+border-color:#3b82f6;
+box-shadow:0 0 10px rgba(59,130,246,0.5);
+}
+
+/* BUTTONS */
+button
+{
+padding:10px 16px;
+margin:5px 5px 5px 0;
+background:linear-gradient(135deg,#3b82f6,#2563eb);
+border:none;
+border-radius:8px;
+color:white;
+font-weight:600;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover
+{
+transform:translateY(-2px);
+box-shadow:0 5px 15px rgba(59,130,246,0.4);
+}
+
+/* LATEX OUTPUT */
+pre
+{
+background:#020617;
+padding:15px;
+border-radius:10px;
+font-size:13px;
+border:1px solid rgba(255,255,255,0.1);
+}
+
+/* MODAL */
+.modal
+{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.8);
+justify-content:center;
+align-items:center;
+}
+
+.modal-content
+{
+background:white;
+color:black;
+padding:40px;
+border-radius:10px;
+width:60%;
+max-width:700px;
+}
+
+.close
+{
+float:right;
+font-size:20px;
+cursor:pointer;
+color:red;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+Harvard Resume → LaTeX Builder
+</header>
+
+<div class="main">
+
+<!-- LEFT PANEL -->
+<div class="left">
+
+<h3>Basic Info</h3>
+
+<input id="name" placeholder="Full Name">
+<input id="email" placeholder="Email">
+<input id="phone" placeholder="Phone">
+<input id="linkedin" placeholder="LinkedIn">
+
+<h3>Education</h3>
+
+<div id="educationContainer"></div>
+
+<button onclick="addEducation()">+ Add Education</button>
+
+<h3>Skills</h3>
+
+<textarea id="skills" placeholder="Python, AI, ML"></textarea>
+
+<h3>Projects</h3>
+
+<div id="projectContainer"></div>
+
+<button onclick="addProject()">+ Add Project</button>
+
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right">
+
+<button onclick="previewResume()">Preview</button>
+
+<button onclick="copyLatex()">Copy LaTeX</button>
+
+<button onclick="downloadTex()">Download TEX</button>
+
+<button onclick="downloadPDF()">Download Harvard PDF</button>
+
+<br><br>
+
+<pre id="output"></pre>
+
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+
+<div class="modal-content">
+
+<span class="close" onclick="closeModal()">✖</span>
+
+<div id="resumePreview"></div>
+
+</div>
+
+</div>
+
+<script>
+
+/* GLOBAL LATEX */
+let latex="";
+
+/* INIT */
+window.onload=function()
+{
+addEducation();
+addProject();
+updateLatex();
+};
+
+/* ADD EDUCATION */
+function addEducation()
+{
+let input=document.createElement("input");
+input.placeholder="Degree, College, Year";
+input.oninput=updateLatex;
+educationContainer.appendChild(input);
+}
+
+/* ADD PROJECT */
+function addProject()
+{
+let input=document.createElement("input");
+input.placeholder="Project Description";
+input.oninput=updateLatex;
+projectContainer.appendChild(input);
+}
+
+/* GET VALUE */
+function get(id)
+{
+return document.getElementById(id).value||"";
+}
+
+/* LATEX LIST */
+function getLatexList(id)
+{
+let items=document.querySelectorAll("#"+id+" input");
+let result="";
+items.forEach(i=>{
+if(i.value.trim())
+result+="\\item "+i.value+"\n";
+});
+return result;
+}
+
+/* HTML LIST */
+function getHTMLList(id)
+{
+let items=document.querySelectorAll("#"+id+" input");
+let result="";
+items.forEach(i=>{
+if(i.value.trim())
+result+="<li>"+i.value+"</li>";
+});
+return result;
+}
+
+/* UPDATE LATEX */
+function updateLatex()
+{
+
+latex=`\\documentclass{article}
+\\usepackage[margin=1in]{geometry}
+\\begin{document}
+
+\\begin{center}
+{\\LARGE \\textbf{${get("name")}}}
+${get("email")} | ${get("phone")} | ${get("linkedin")}
+\\end{center}
+
+\\section*{Education}
+\\begin{itemize}
+${getLatexList("educationContainer")}
+\\end{itemize}
+
+\\section*{Projects}
+\\begin{itemize}
+${getLatexList("projectContainer")}
+\\end{itemize}
+
+\\section*{Skills}
+${get("skills")}
+
+\\end{document}`;
+
+output.textContent=latex;
+
+}
+
+document.addEventListener("input",updateLatex);
+
+/* PREVIEW */
+function previewResume()
+{
+
+resumePreview.innerHTML=`
+<h1>${get("name")}</h1>
+<p>${get("email")} | ${get("phone")} | ${get("linkedin")}</p>
+
+<h2>Education</h2>
+<ul>${getHTMLList("educationContainer")}</ul>
+
+<h2>Projects</h2>
+<ul>${getHTMLList("projectContainer")}</ul>
+
+<h2>Skills</h2>
+<p>${get("skills")}</p>
+`;
+
+modal.style.display="flex";
+
+}
+
+/* CLOSE */
+function closeModal()
+{
+modal.style.display="none";
+}
+
+/* COPY */
+function copyLatex()
+{
+navigator.clipboard.writeText(latex);
+alert("LaTeX copied");
+}
+
+/* DOWNLOAD TEX */
+function downloadTex()
+{
+let blob=new Blob([latex],{type:"application/x-tex"});
+let link=document.createElement("a");
+link.href=URL.createObjectURL(blob);
+link.download="resume.tex";
+link.click();
+}
+
+/* DOWNLOAD HARVARD PDF */
+function downloadPDF()
+{
+
+let win=window.open("","_blank");
+
+win.document.write(`
+<html>
+<head>
+<title>Resume</title>
+
+<style>
+
+body
+{
+font-family:"Times New Roman",serif;
+padding:60px;
+max-width:800px;
+margin:auto;
+color:black;
+}
+
+.name
+{
+font-size:28px;
+font-weight:bold;
+margin-bottom:5px;
+}
+
+.contact
+{
+margin-bottom:20px;
+}
+
+.section
+{
+font-weight:bold;
+margin-top:20px;
+border-bottom:1px solid black;
+}
+
+ul
+{
+margin-top:5px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="name">
+${get("name")}
+</div>
+
+<div class="contact">
+${get("email")} | ${get("phone")} | ${get("linkedin")}
+</div>
+
+<div class="section">EDUCATION</div>
+<ul>${getHTMLList("educationContainer")}</ul>
+
+<div class="section">PROJECTS</div>
+<ul>${getHTMLList("projectContainer")}</ul>
+
+<div class="section">SKILLS</div>
+<p>${get("skills")}</p>
+
+</body>
+</html>
+`);
+
+win.document.close();
+
+win.print();
+
+}
+
+</script>
+
+</body>
+
+</html>
