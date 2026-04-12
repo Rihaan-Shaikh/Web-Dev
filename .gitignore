@@ -1,0 +1,16 @@
+# python cache
+__pycache__/
+*.pyc
+
+# virtual env
+venv/
+.env/
+
+# ML cache
+*.bin
+*.pt
+*.pkl
+
+# system files
+.DS_Store
+Thumbs.db

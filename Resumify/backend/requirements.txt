@@ -3,4 +3,5 @@ uvicorn
 pydantic
 python-multipart
 scikit-learn
-joblib
+joblibtorch
+transformers
