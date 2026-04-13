@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if form.instance.pk %}Edit Post{% else %}Create Post{% endif %} - The Digital Diary</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .glass { background: rgba(255,255,255,0.12); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2); }
+        .input-field { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease; }
+        .input-field:focus { border-color: rgba(102,126,234,0.5); box-shadow: 0 0 0 3px rgba(102,126,234,0.1); background: rgba(255,255,255,0.15); outline: none; }
+        .btn-primary { background: linear-gradient(45deg, #667eea, #764ba2); transition: all 0.3s ease; }
+        .btn-primary:hover { background: linear-gradient(45deg, #5a6fd8, #6a4190); transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="relative z-10 w-full max-w-3xl px-6 py-10">
+        <div class="glass rounded-3xl p-8">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h1 class="text-4xl font-bold text-white">{% if form.instance.pk %}Edit Post{% else %}Create Post{% endif %}</h1>
+                    <p class="text-white text-opacity-80 mt-2">{% if form.instance.pk %}Update your article{% else %}Publish a new article{% endif %}</p>
+                </div>
+                <a href="{% url 'home' %}" class="text-white text-opacity-70 hover:text-white">Back to home</a>
+            </div>
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="p-4 rounded-lg bg-red-500 bg-opacity-20 border border-red-500 text-red-100">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div>
+                    {{ form.title.label_tag }}
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <p class="text-red-300 text-sm mt-2">{{ form.title.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    {{ form.content.label_tag }}
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                        <p class="text-red-300 text-sm mt-2">{{ form.content.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn-primary w-full py-4 rounded-2xl font-semibold text-white">{% if form.instance.pk %}Update Post{% else %}Publish Post{% endif %}</button>
+            </form>
+        </div>
+    </div>
+
+    <script>lucide.createIcons();</script>
+</body>
+</html>

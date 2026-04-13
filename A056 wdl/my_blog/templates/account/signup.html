@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Sign Up - The Digital Diary</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .gradient-text {
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 3s ease infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #ff5252, #26d0ce);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .social-btn {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .github-btn:hover {
+            border-color: #333;
+            background: #333 !important;
+            color: white !important;
+        }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: rgba(255, 107, 107, 0.5);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .password-strength {
+            transition: all 0.3s ease;
+        }
+
+        .strength-weak { background: #ff6b6b; width: 33%; }
+        .strength-medium { background: #ffa500; width: 66%; }
+        .strength-strong { background: #4ecdc4; width: 100%; }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float" style="animation-delay: 2s;"></div>
+        <div class="absolute top-1/4 right-1/4 w-60 h-60 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float" style="animation-delay: 4s;"></div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-md px-6">
+        <!-- Header -->
+        <div class="text-center mb-8 fade-in">
+            <div class="flex items-center justify-center space-x-3 mb-6">
+                <div class="w-12 h-12 bg-gradient-to-r from-pink-500 to-teal-500 rounded-full flex items-center justify-center">
+                    <i data-lucide="rocket" class="w-7 h-7 text-white"></i>
+                </div>
+                <h1 class="text-3xl font-bold gradient-text">Join the Adventure</h1>
+            </div>
+            <p class="text-white text-opacity-80">Create your account and start your amazing journey</p>
+        </div>
+
+        <!-- Signup Form -->
+        <div class="glass rounded-3xl p-8 fade-in">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-500 bg-opacity-20 border border-red-500{% else %}bg-green-500 bg-opacity-20 border border-green-500{% endif %}">
+                            <p class="text-white text-sm">{{ message }}</p>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Username Field -->
+                <div>
+                    <label for="{{ form.username.id_for_label }}" class="block text-white font-medium mb-2">
+                        <i data-lucide="user" class="w-4 h-4 inline mr-2"></i>
+                        Username
+                    </label>
+                    <input type="text"
+                           name="{{ form.username.name }}"
+                           id="{{ form.username.id_for_label }}"
+                           class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-white placeholder-opacity-60 focus:outline-none"
+                           placeholder="Choose a unique username"
+                           required>
+                    {% if form.username.errors %}
+                        <p class="text-red-400 text-sm mt-1">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Email Field -->
+                <div>
+                    <label for="{{ form.email.id_for_label }}" class="block text-white font-medium mb-2">
+                        <i data-lucide="mail" class="w-4 h-4 inline mr-2"></i>
+                        Email Address
+                    </label>
+                    <input type="email"
+                           name="{{ form.email.name }}"
+                           id="{{ form.email.id_for_label }}"
+                           class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-white placeholder-opacity-60 focus:outline-none"
+                           placeholder="Enter your email address">
+                    {% if form.email.errors %}
+                        <p class="text-red-400 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Password Field -->
+                <div>
+                    <label for="{{ form.password1.id_for_label }}" class="block text-white font-medium mb-2">
+                        <i data-lucide="lock" class="w-4 h-4 inline mr-2"></i>
+                        Password
+                    </label>
+                    <input type="password"
+                           name="{{ form.password1.name }}"
+                           id="{{ form.password1.id_for_label }}"
+                           class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-white placeholder-opacity-60 focus:outline-none"
+                           placeholder="Create a strong password"
+                           required>
+                    {% if form.password1.errors %}
+                        <p class="text-red-400 text-sm mt-1">{{ form.password1.errors.0 }}</p>
+                    {% endif %}
+
+                    <!-- Password Strength Indicator -->
+                    <div class="mt-2">
+                        <div class="w-full bg-white bg-opacity-20 rounded-full h-2">
+                            <div id="password-strength" class="h-2 rounded-full transition-all duration-300"></div>
+                        </div>
+                        <p id="password-text" class="text-white text-opacity-60 text-xs mt-1">Password strength</p>
+                    </div>
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div>
+                    <label for="{{ form.password2.id_for_label }}" class="block text-white font-medium mb-2">
+                        <i data-lucide="shield-check" class="w-4 h-4 inline mr-2"></i>
+                        Confirm Password
+                    </label>
+                    <input type="password"
+                           name="{{ form.password2.name }}"
+                           id="{{ form.password2.id_for_label }}"
+                           class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-white placeholder-opacity-60 focus:outline-none"
+                           placeholder="Confirm your password"
+                           required>
+                    {% if form.password2.errors %}
+                        <p class="text-red-400 text-sm mt-1">{{ form.password2.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="flex items-start">
+                    <input type="checkbox" id="terms" class="rounded border-white bg-transparent text-pink-600 focus:ring-pink-500 mt-1" required>
+                    <label for="terms" class="ml-3 text-white text-sm">
+                        I agree to the <a href="#" class="text-pink-300 hover:text-pink-200 underline">Terms of Service</a>
+                        and <a href="#" class="text-pink-300 hover:text-pink-200 underline">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-primary w-full py-3 rounded-xl font-semibold text-white flex items-center justify-center space-x-2">
+                    <i data-lucide="user-plus" class="w-5 h-5"></i>
+                    <span>Create Account</span>
+                </button>
+            </form>
+
+            <!-- Social Signup -->
+            <div class="mt-8">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-white border-opacity-20"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-4 bg-transparent text-white text-opacity-80">Or sign up with</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 gap-3">
+                    {% load socialaccount %}
+                    {% comment %} GitHub signup button - will be enabled after configuring social app in admin {% endcomment %}
+                    <div class="social-btn github-btn bg-gray-800 text-white px-4 py-3 rounded-xl font-medium flex items-center justify-center space-x-3 opacity-50 cursor-not-allowed">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        <span>GitHub (Setup Required)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Link -->
+            <div class="mt-8 text-center">
+                <p class="text-white text-opacity-80">
+                    Already have an account?
+                    <a href="{% url 'account_login' %}" class="text-pink-300 hover:text-pink-200 font-medium transition-colors">
+                        Sign in here
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div class="text-center mt-8 fade-in">
+            <a href="{% url 'home' %}" class="text-white text-opacity-60 hover:text-white transition-colors flex items-center justify-center space-x-2">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                <span>Back to Home</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Password strength indicator
+        const passwordInput = document.querySelector('input[name="password1"]');
+        const strengthBar = document.getElementById('password-strength');
+        const strengthText = document.getElementById('password-text');
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            let feedback = [];
+
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            strengthBar.className = 'h-2 rounded-full transition-all duration-300';
+
+            if (strength <= 2) {
+                strengthBar.classList.add('strength-weak');
+                strengthText.textContent = 'Weak password';
+                strengthText.style.color = '#ff6b6b';
+            } else if (strength <= 3) {
+                strengthBar.classList.add('strength-medium');
+                strengthText.textContent = 'Medium password';
+                strengthText.style.color = '#ffa500';
+            } else {
+                strengthBar.classList.add('strength-strong');
+                strengthText.textContent = 'Strong password';
+                strengthText.style.color = '#4ecdc4';
+            }
+        });
+
+        // Add loading animation to submit button only after validation passes
+        const signupForm = document.querySelector('form');
+        const signupButton = signupForm.querySelector('button[type="submit"]');
+
+        signupForm.addEventListener('submit', function(e) {
+            const password1 = document.querySelector('input[name="password1"]').value;
+            const password2 = document.querySelector('input[name="password2"]').value;
+            const terms = document.getElementById('terms').checked;
+
+            if (password1 !== password2) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return false;
+            }
+
+            if (!terms) {
+                e.preventDefault();
+                alert('Please accept the Terms of Service and Privacy Policy.');
+                return false;
+            }
+
+            signupButton.innerHTML = '<div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>Creating account...';
+            signupButton.disabled = true;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }} - The Digital Diary</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: white; }
+        .glass { background: rgba(255,255,255,0.12); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-primary { background: linear-gradient(45deg, #667eea, #764ba2); transition: all 0.3s ease; }
+        .btn-primary:hover { background: linear-gradient(45deg, #5a6fd8, #6a4190); transform: translateY(-2px); }
+        .btn-secondary { background: linear-gradient(45deg, #ff6b6b, #4ecdc4); transition: all 0.3s ease; }
+        .btn-secondary:hover { background: linear-gradient(45deg, #ff5252, #26d0ce); transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex items-center justify-center px-4 py-10">
+        <div class="glass max-w-4xl w-full rounded-3xl p-10">
+            <div class="flex flex-col lg:flex-row justify-between gap-6 mb-10">
+                <div>
+                    <h1 class="text-5xl font-bold mb-4">{{ post.title }}</h1>
+                    <div class="flex flex-wrap gap-4 text-sm text-white text-opacity-80">
+                        <span>By {{ post.author|default:'Guest Writer' }}</span>
+                        <span>{{ post.created_at|date:'F j, Y' }}</span>
+                        <span>{{ post.content|length }} chars</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'home' %}" class="btn-secondary px-5 py-3 rounded-full font-medium">Back to Home</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'post-edit' post.pk %}" class="btn-primary px-5 py-3 rounded-full font-medium flex items-center space-x-2">
+                            <i data-lucide="edit" class="w-4 h-4"></i>
+                            <span>Edit</span>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="prose prose-invert max-w-none text-white text-opacity-90 leading-8">
+                <p>{{ post.content }}</p>
+            </div>
+        </div>
+    </div>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
