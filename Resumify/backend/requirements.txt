@@ -3,5 +3,11 @@ uvicorn
 pydantic
 python-multipart
 scikit-learn
-joblibtorch
+joblib
+torch
+
 transformers
+psycopg2-binary
+django
+django-allauth
+djangorestframework
