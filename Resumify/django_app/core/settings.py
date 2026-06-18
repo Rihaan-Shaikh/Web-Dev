@@ -15,23 +15,17 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # -------------------- SECURITY --------------------
-SECRET_KEY = 'django-insecure-30te(n2jfcj6&ur*$u@ah#s-y4sq5f@%05=lv3n!83wt4p^bay'
-DEBUG = True
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-30te(n2jfcj6&ur*$u@ah#s-y4sq5f@%05=lv3n!83wt4p^bay')
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 # -------------------- CORS + CSRF --------------------
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5500",
-    "http://localhost:5500",
-]
+CORS_ALLOWED_ORIGINS = os.environ.get('DJANGO_CORS_ALLOWED_ORIGINS', 'http://127.0.0.1:5500,http://localhost:5500').split(',')
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:5500",
-    "http://localhost:5500",
-]
+CSRF_TRUSTED_ORIGINS = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', 'http://127.0.0.1:5500,http://localhost:5500').split(',')
 
 CORS_ALLOW_ALL_HEADERS = True
 
@@ -91,16 +85,56 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 # -------------------- DATABASE --------------------
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'resumify_db',
-        'USER': 'postgres',
-        'PASSWORD': 'Aadi@282006',
-        'HOST': 'localhost',
-        'PORT': '5432',
+import os
+import urllib.parse
+
+db_url = os.environ.get("DATABASE_URL")
+if db_url:
+    urllib.parse.uses_netloc.append("postgres")
+    url = urllib.parse.urlparse(db_url)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': url.path[1:],
+            'USER': url.username,
+            'PASSWORD': url.password,
+            'HOST': url.hostname,
+            'PORT': url.port or 5432,
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('POSTGRES_DB', 'resumify_db'),
+            'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'password'),
+            'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+            'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        }
+    }
+    try:
+        import psycopg2
+        # Attempt connection to verify database is running and accessible
+        conn = psycopg2.connect(
+            dbname=DATABASES['default']['NAME'],
+            user=DATABASES['default']['USER'],
+            password=DATABASES['default']['PASSWORD'],
+            host=DATABASES['default']['HOST'],
+            port=DATABASES['default']['PORT'],
+            connect_timeout=1
+        )
+        conn.close()
+    except Exception:
+        # Gracefully fall back to SQLite if PostgreSQL is not active
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
+
+
 
 # -------------------- PASSWORD VALIDATION --------------------
 AUTH_PASSWORD_VALIDATORS = [
@@ -140,8 +174,8 @@ AUTHENTICATION_BACKENDS = (
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 # -------------------- DJANGO REST FRAMEWORK --------------------
 REST_FRAMEWORK = {
